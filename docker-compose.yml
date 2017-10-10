@@ -1,21 +1,29 @@
-registry:
-  image: registry:2
-  restart: always
-  ports:
-    - "443:443"
-  volumes:
-    - "./certs:/certs:ro"
-    - "./registry/conf:/etc/docker/registry:ro"
-    - "./registry/storage:/var/lib/registry:rw"
-
-auth:
-  image: cesanta/docker_auth
-  entrypoint: /start.sh
-  ports:
-    - "5001:5001"
-  volumes:
-    - "./auth/start.sh:/start.sh:ro"
-    - "./auth/config:/config:ro" 
-    - "./auth/logs:/logs:rw"
-    - "./certs:/certs:ro"
-
+version: '2'
+services:
+  registry:
+    image: registry:2
+    restart: always
+    ports:
+      - "443:443"
+      - "5000:5000"
+    volumes:
+      - "./certs:/certs:ro"
+      - "./registry/conf:/etc/docker/registry:ro"
+      - "./registry/storage:/var/lib/registry:rw"
+  authz:
+    image: c3tp/authz_server
+    ports:
+      - "5002:5000"
+  auth:
+    image: c3tp/authn_server
+    entrypoint: /start.sh
+    ports:
+      - "5001:5001"
+    volumes:
+      - "./auth/start.sh:/start.sh:ro"
+      - "./auth/config:/config:ro" 
+      - "./auth/logs:/logs:rw"
+      - "./certs:/certs:ro"
+      - "./auth/external_auth:/external_auth"
+    depends_on:
+      - authz
