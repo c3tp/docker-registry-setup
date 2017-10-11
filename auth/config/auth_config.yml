@@ -46,4 +46,4 @@ acl:
     actions: []
 
 ext_authz:
-  command: "/external_auth/fake_auth.sh"
+  command: "/config/fake_auth.sh"

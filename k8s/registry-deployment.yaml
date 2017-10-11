@@ -1,0 +1,43 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  labels:
+    service.type: registry
+  name: registry
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        service.type: registry
+    spec:
+      containers:
+      - image: registry:2
+        name: registry
+        ports:
+        - containerPort: 443
+        - containerPort: 5000
+        resources: {}
+        volumeMounts:
+        - mountPath: /certs
+          name: certs-volume
+          readOnly: true
+        - mountPath: /etc/docker/registry
+          name: config-volume
+        - mountPath: /var/lib/registry
+          name: data-volume
+      restartPolicy: Always
+      volumes:
+      - name: config-volume
+        configMap:
+          name: registry-config
+      - name: certs-volume
+        configMap:
+          name: certs-config
+      - name: data-volume
+        persistentVolumeClaim:
+          claimName: registry-claim
+status: {}

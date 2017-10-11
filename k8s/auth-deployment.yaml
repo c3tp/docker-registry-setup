@@ -1,0 +1,45 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  annotations:
+  creationTimestamp: null
+  labels:
+    service.type: auth
+  name: auth
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        service.type: auth
+    spec:
+      containers:
+      - command:
+        - /config/start.sh
+        image: c3tp/authn_server
+        name: auth
+        ports:
+        - containerPort: 5001
+        resources: {}
+        volumeMounts:
+        - name: log-volume
+          mountPath: /logs
+        - name: config-volume
+          mountPath: /config
+        - name: certs-volume
+          mountPath: /certs
+      restartPolicy: Always
+      volumes:
+      - name: log-volume
+        emptyDir: {}
+      - name: config-volume
+        configMap:
+          defaultMode: 0555
+          name: authn-config
+      - name: certs-volume
+        configMap:
+          name: certs-config
+status: {}
